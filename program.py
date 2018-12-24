@@ -19,8 +19,8 @@ def main():
 
 def get_from_web():
     # Opening web page and getting beautiful soup info
-    url = "https://ca.news.yahoo.com/weather/canada/ontario/williamstown-23397397"
-    driver = webdriver.Chrome(executable_path =r'D:\My Documents\PyCharm\weather_app\venv\chromedriver_win32\chromedriver.exe')
+    url = "Web_address_to_scrape_frome"
+    driver = webdriver.Chrome(executable_path =r'Insert_path_to_web_driver_here')
     driver.get(url)
     soup = bs4.BeautifulSoup(driver.page_source, 'html.parser')
 
