@@ -12,11 +12,11 @@ def main():
 
 def weather_net(options):  # function to pull source from weather network
     weather_network_url = "https://www.theweathernetwork.com/ca/weather/ontario/williamstown"
-    w_dvr = webdriver.Chrome(executable_path=r'D:\Python\Farm_weather\Chrome_driver\chromedriver.exe',
+    w_dvr = webdriver.Chrome(executable_path=
+                             r'D:\My Documents\PyCharm\weather_app_1.5\venv\chromedriver_win32\chromedriver.exe',
                              options=options)
     w_dvr.get(weather_network_url)
     w_soup = bs4.BeautifulSoup(w_dvr.page_source, 'html.parser')
-    w_soup.find("div", {"class": "wxRow wx_detailed-metrics stripeable wx_rain_long"}).text
     w_dvr.quit()
 
     return w_soup
@@ -24,7 +24,8 @@ def weather_net(options):  # function to pull source from weather network
 
 def yahoo_weather(options):  # function to pull source from yahoo weather
     yahoo_url = "https://ca.news.yahoo.com/weather/canada/ontario/williamstown-23397397"
-    y_dvr = webdriver.Chrome(executable_path=r'D:\Python\Farm_weather\Chrome_driver\chromedriver.exe',
+    y_dvr = webdriver.Chrome(executable_path=
+                             r'D:\My Documents\PyCharm\weather_app_1.5\venv\chromedriver_win32\chromedriver.exe',
                              options=options)
     y_dvr.get(yahoo_url)
     y_soup = bs4.BeautifulSoup(y_dvr.page_source, 'html.parser')
@@ -63,7 +64,7 @@ def persistent_run():  # If statement grabs minutes of the hour and modulo divid
             time.sleep(1)  # starts checking the time to be ready for when the mod swaps over to 10 minute mark
 
 
-def format_data(y_data, w_data):  # Function accepts source code from sites and filters through to pull necessary data 
+def format_data(y_data, w_data):  # Function accepts source code from sites and filters through to pull necessary data
     loc = y_data.select("div h1[data-reactid*='7']")[0].text
     temp = y_data.select("div span[data-reactid*='37']")[0].text
     feels_like = y_data.select("div [data-reactid*='477']")[0].text
@@ -72,9 +73,16 @@ def format_data(y_data, w_data):  # Function accepts source code from sites and 
     condition = y_data.find('div', {'class': 'wind'})
     condition = condition.find('p').get_text()
     skies = y_data.select("div span[data-reactid*='26']")[0].text
-    volume = w_data.find("div", {"class": "wxRow wx_detailed-metrics stripeable wx_rain_long"}).text
-    if volume == "-":
-        volume = "None"
+    try:  # try / except because weather network removes div when not necessary. If no rain, look for snow
+        precip = w_data.find("div", {"class": "wxRow wx_detailed-metrics stripeable wx_rain_long"}).text
+        if precip == '-':
+            precip = ' 0 mm'
+        precip = precip + ' of Rain'
+    except AttributeError:
+        precip = w_data.find("div", {"class": "wxRow wx_detailed-metrics stripeable wx_snow_long"}).text
+        if precip == '-':
+            precip = ' 0 mm'
+        precip = precip + ' of Snow'
 
     # Multiple Days forecast
     # Forecast for tomorrow
@@ -115,8 +123,8 @@ def format_data(y_data, w_data):  # Function accepts source code from sites and 
     The Low for today is: {}
     Wind conditions are: {}
     Skies are currently: {}
-    The estimated amount of precipitation is: {}
-    """.format(loc, temp, feels_like, high, low, condition, skies, volume))
+    Estimated amount precipitation over 24 hours: {}
+    """.format(loc, temp, feels_like, high, low, condition, skies, precip))
 
     print("Your Five Day Forecast")
     print("""
