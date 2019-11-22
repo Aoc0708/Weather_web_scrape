@@ -73,16 +73,32 @@ def format_data(y_data, w_data):  # Function accepts source code from sites and 
     condition = y_data.find('div', {'class': 'wind'})
     condition = condition.find('p').get_text()
     skies = y_data.select("div span[data-reactid*='26']")[0].text
+    try:  # try / except because weather network removes div when not necessary. If no snow, look for rain
+        snow = w_data.find("div", {"class": "wxRow wx_detailed-metrics stripeable wx_snow_long wx_24h_xlong"}).text
+        if snow == '-':
+            snow = ' 0 mm'
+        snow = snow + ' of Snow'
+    except AttributeError:
+        try:
+            snow = w_data.find("div", {"class": "wxRow wx_detailed-metrics stripeable wx_snow_long"}).text
+            if snow == '-':
+                snow = ' 0 mm'
+            snow = snow + ' of Snow'
+        except AttributeError:
+            snow = 'Information unavailable'
     try:  # try / except because weather network removes div when not necessary. If no rain, look for snow
         precip = w_data.find("div", {"class": "wxRow wx_detailed-metrics stripeable wx_rain_long"}).text
         if precip == '-':
             precip = ' 0 mm'
         precip = precip + ' of Rain'
     except AttributeError:
-        precip = w_data.find("div", {"class": "wxRow wx_detailed-metrics stripeable wx_snow_long"}).text
-        if precip == '-':
-            precip = ' 0 mm'
-        precip = precip + ' of Snow'
+        try:
+            precip = w_data.find("div", {"class": "wxRow wx_detailed-metrics stripeable wx_rain_long wx_24h_xlong"}).text
+            if precip == '-':
+                precip = ' 0 mm'
+            precip = precip + ' of Rain'
+        except AttributeError:
+            precip = 'Information unavailable'
 
     # Multiple Days forecast
     # Forecast for tomorrow
@@ -123,8 +139,9 @@ def format_data(y_data, w_data):  # Function accepts source code from sites and 
     The Low for today is: {}
     Wind conditions are: {}
     Skies are currently: {}
-    Estimated amount precipitation over 24 hours: {}
-    """.format(loc, temp, feels_like, high, low, condition, skies, precip))
+    Estimated amount of rain over 24 hours: {}
+    Estimated amount of snow over 24 hours: {}
+    """.format(loc, temp, feels_like, high, low, condition, skies, precip, snow))
 
     print("Your Five Day Forecast")
     print("""
