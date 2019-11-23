@@ -73,32 +73,31 @@ def format_data(y_data, w_data):  # Function accepts source code from sites and 
     condition = y_data.find('div', {'class': 'wind'})
     condition = condition.find('p').get_text()
     skies = y_data.select("div span[data-reactid*='26']")[0].text
+
     try:  # try / except because weather network removes div when not necessary. If no snow, look for rain
-        snow = w_data.find("div", {"class": "wxRow wx_detailed-metrics stripeable wx_snow_long wx_24h_xlong"}).text
-        if snow == '-':
-            snow = ' 0 mm'
-        snow = snow + ' of Snow'
+        snow = w_data.find("div", {"class": "wxRow wx_detailed-metrics stripeable wx_snow_long  wx_24h_xlong"}).text
     except AttributeError:
-        try:
-            snow = w_data.find("div", {"class": "wxRow wx_detailed-metrics stripeable wx_snow_long"}).text
-            if snow == '-':
-                snow = ' 0 mm'
-            snow = snow + ' of Snow'
-        except AttributeError:
-            snow = 'Information unavailable'
+        snow = w_data.find("div", {"class": "wxRow wx_detailed-metrics stripeable wx_snow_long"}).text
+    except:
+        snow = ' An unspecified error occurred.'
+    else:
+        snow = snow
+
     try:  # try / except because weather network removes div when not necessary. If no rain, look for snow
-        precip = w_data.find("div", {"class": "wxRow wx_detailed-metrics stripeable wx_rain_long"}).text
-        if precip == '-':
-            precip = ' 0 mm'
-        precip = precip + ' of Rain'
+        precp = w_data.find("div", {"class": "wxRow wx_detailed-metrics stripeable wx_rain_long wx_24h_xlong"}).text
     except AttributeError:
-        try:
-            precip = w_data.find("div", {"class": "wxRow wx_detailed-metrics stripeable wx_rain_long wx_24h_xlong"}).text
-            if precip == '-':
-                precip = ' 0 mm'
-            precip = precip + ' of Rain'
-        except AttributeError:
-            precip = 'Information unavailable'
+        precp = w_data.find("div", {"class": "wxRow wx_detailed-metrics stripeable wx_rain_long"}).text
+    except:
+        precp = ' An unspecified error occurred.'
+    else:
+        precp = precp
+
+    if precp == '-':
+        precp = ' 0 mm'
+        precp = precp + ' of Rain'
+    if snow == '-':
+        snow = ' 0 mm'
+        snow = snow + ' of Snow'
 
     # Multiple Days forecast
     # Forecast for tomorrow
@@ -141,7 +140,7 @@ def format_data(y_data, w_data):  # Function accepts source code from sites and 
     Skies are currently: {}
     Estimated amount of rain over 24 hours: {}
     Estimated amount of snow over 24 hours: {}
-    """.format(loc, temp, feels_like, high, low, condition, skies, precip, snow))
+    """.format(loc, temp, feels_like, high, low, condition, skies, precp, snow))
 
     print("Your Five Day Forecast")
     print("""
