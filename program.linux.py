@@ -74,21 +74,23 @@ def format_data(y_data, w_data):  # Function accepts source code from sites and 
     condition = condition.find('p').get_text()
     skies = y_data.select("div span[data-reactid*='26']")[0].text
 
-    try:  # try / except because weather network removes div when not necessary. If no snow, look for rain
-        snow = w_data.find("div", {"class": "wxRow wx_detailed-metrics stripeable wx_snow_long  wx_24h_xlong"}).text
+    try:  # try / except because weather network removes div when not necessary.
+        snow = w_data.find("div", {"class": "wxRow wx_detailed-metrics stripeable wx_snow_long wx_24h_xlong"}).text
     except AttributeError:
-        snow = w_data.find("div", {"class": "wxRow wx_detailed-metrics stripeable wx_snow_long"}).text
-    except:
-        snow = ' An unspecified error occurred.'
+        try:
+            snow = w_data.find("div", {"class": "wxRow wx_detailed-metrics stripeable wx_snow_long"}).text
+        except AttributeError:
+            snow = ' No snow data available.'
     else:
         snow = snow
 
-    try:  # try / except because weather network removes div when not necessary. If no rain, look for snow
+    try:  # try / except because weather network removes div when not necessary.
         precp = w_data.find("div", {"class": "wxRow wx_detailed-metrics stripeable wx_rain_long wx_24h_xlong"}).text
     except AttributeError:
-        precp = w_data.find("div", {"class": "wxRow wx_detailed-metrics stripeable wx_rain_long"}).text
-    except:
-        precp = ' An unspecified error occurred.'
+        try:
+            precp = w_data.find("div", {"class": "wxRow wx_detailed-metrics stripeable wx_rain_long"}).text
+        except AttributeError:
+            precp = ' No rain data available'
     else:
         precp = precp
 
